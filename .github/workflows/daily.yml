@@ -1,0 +1,66 @@
+name: Daily release
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  check:
+    name: Check if anything changed
+    runs-on: ubuntu-22.04
+    outputs:
+      count: ${{ steps.count.outputs.count }}
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - id: count
+        name: Count new commits
+        run: |
+          echo "count=$(git log --oneline --since '24 hours ago' | wc -l)" >> "$GITHUB_OUTPUT"
+
+  release:
+    name: Tag and create daily release
+    runs-on: ubuntu-22.04
+    needs: check
+    if: ${{ needs.check.outputs.count > 0 }}
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - id: find
+        name: Find latest build
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        run: |
+          echo "run_id=$(gh run list --workflow build.yml --branch master --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> "$GITHUB_OUTPUT"
+      
+      - id: date
+        name: Get today's date
+        run: |
+          echo "date=$(date '+%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+          
+      - name: Create and push tag
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ steps.date.outputs.date }}"
+
+      - name: Download latest build
+        uses: actions/download-artifact@v5
+        with:
+          name: 'fonts'
+          path: '.'
+          run-id: ${{ steps.find.outputs.run_id }}
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "Daily release ${{ steps.date.outputs.date }}"
+          artifacts: "APL387*,APL335*"
+          makeLatest: 'false'
