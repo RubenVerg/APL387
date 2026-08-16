@@ -64,3 +64,4 @@ jobs:
           name: "Daily release ${{ steps.date.outputs.date }}"
           artifacts: "APL387*,APL335*"
           makeLatest: 'false'
+          tag: "${{ steps.date.outputs.date }}"
