@@ -1,6 +1,6 @@
 # _APL387 Unicode_ and _APL335 Unicode_
 
-[_APL387 Unicode_](https://dyalog.github.io/APL387) is redrawn and extended version of Adrian Smith's classic [_APL385 Unicode_](https://apl385.com/fonts/) font with clean rounded look.
+[_APL387 Unicode_](https://dyalog.github.io/APL387) is a redrawn and extended version of Adrian Smith's classic [_APL385 Unicode_](https://apl385.com/fonts/) font with clean rounded look.
 
 Work is now under way to fix remaining issues and make the font as widely usable as possible, adding characters from less known APL dialects and derivatives, and improving glyph consistency.
 
